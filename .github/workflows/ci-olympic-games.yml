@@ -1,0 +1,29 @@
+name: CI olympic-games
+run-name: CI olympic-games by @${{ github.actor }}
+
+on:
+  push:
+    branches: [main, develop, ci]
+    paths:
+      - "olympic-games/**"
+      - "run-tests.py"
+      - ".github/workflows/ci-olympic-games.yml"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "olympic-games/**"
+      - "run-tests.py"
+      - ".github/workflows/ci-olympic-games.yml"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+    with:
+      project: olympic-games
