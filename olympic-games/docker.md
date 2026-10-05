@@ -47,7 +47,7 @@ docker compose up angular-prod -d
 | Service        | Port hôte | Port conteneur | URL                     |
 | -------------- | --------- | -------------- | ----------------------- |
 | `angular-dev`  | 4200      | 4200           | <http://localhost:4200> |
-| `angular-prod` | 4300      | 8080 (nginx)   | <http://localhost:4300> |
+| `angular-prod` | 4300      | 80 (nginx)     | <http://localhost:4300> |
 | `angular-test` | —         | —              | Aucun port exposé       |
 
 ## 📝 Récapitulatif
