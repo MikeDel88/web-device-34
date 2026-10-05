@@ -19,9 +19,9 @@ cp .env.example .env        # puis adapter les valeurs
 ./gradlew build             # produit le WAR attendu par le Dockerfile
 docker compose up --build
 
-# Front
+# Front (prod, port 4300 ; angular-dev pour le mode dev sur 4200)
 cd olympic-games
-docker compose up --build
+docker compose up --build angular-prod
 ```
 
 - Front : <http://localhost:4300>
