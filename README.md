@@ -5,16 +5,22 @@ Monorepo contenant le front et le back de l'application.
 ```
 .
 ├── olympic-games/      Front Angular (servi par Nginx), voir olympic-games/README.md
-├── workshop-organizer/ Back Spring Boot / Gradle (WAR sur Tomcat), voir workshop-organizer/README.md
-├── docker-compose.yaml Lance front + back + base PostgreSQL
-└── .env.example        Variables d'environnement à copier dans .env
+└── workshop-organizer/ Back Spring Boot / Gradle (WAR sur Tomcat), voir workshop-organizer/README.md
 ```
 
-## Lancer l'ensemble
+## Lancer
+
+Chaque dossier se lance avec son propre `docker-compose` :
 
 ```bash
+# Back + PostgreSQL
+cd workshop-organizer
 cp .env.example .env        # puis adapter les valeurs
-(cd workshop-organizer && ./gradlew build) # produit le WAR attendu par workshop-organizer/Dockerfile
+./gradlew build             # produit le WAR attendu par le Dockerfile
+docker compose up --build
+
+# Front
+cd olympic-games
 docker compose up --build
 ```
 

@@ -1,12 +1,12 @@
 services:
 
-  app:
+  workshop-organizer:
     build: .
     image: workshop-organizer:0.2.4
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/${DB_NAME}"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://workshop-organizer-db:5432/${DB_NAME}"
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
     healthcheck:
@@ -16,11 +16,11 @@ services:
       retries: 3
       start_period: 40s
     depends_on:
-      db:
+      workshop-organizer-db:
         condition: service_healthy
     restart: unless-stopped
 
-  db:
+  workshop-organizer-db:
     image: postgres:13
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -34,8 +34,8 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - workshop-organizer-data:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
-  db-data:
+  workshop-organizer-data:
