@@ -10,6 +10,12 @@ plugins {
 group = 'fr.oc.devops'
 version = '0.2.4'
 
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
 repositories {
 	mavenCentral()
 }
