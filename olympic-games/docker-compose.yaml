@@ -17,7 +17,7 @@ services:
       dockerfile: Dockerfile
     image: docker-angular-sample
     ports:
-      - "4300:8080"
+      - "4300:80"
 
   angular-test:
     build:

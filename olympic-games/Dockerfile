@@ -29,14 +29,14 @@ RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:${NGINX_VERSION} AS runner
 
-# Replace the default server block (SPA fallback, gzip, caching)
-COPY default.conf /etc/nginx/conf.d/default.conf
+# Replace the main nginx configuration (SPA fallback, gzip, caching)
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Copy the static build output from the build stage to Nginx's default HTML serving directory
-COPY --chown=nginx:nginx --from=builder /app/dist/olympic-games-starter/browser /usr/share/nginx/html
+# Copy the static build output from the build stage to the root served by nginx.conf
+COPY --chown=nginx:nginx --from=builder /app/dist/olympic-games-starter/browser /app
 
-# Expose port 8080 to allow HTTP traffic (the base image runs as non-root user nginx)
-EXPOSE 8080
+# Expose port 80 to allow HTTP traffic (the base image runs as non-root user nginx)
+EXPOSE 80
 
 # Start Nginx in the foreground
 CMD ["nginx", "-g", "daemon off;"]
