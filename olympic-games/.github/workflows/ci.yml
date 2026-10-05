@@ -1,0 +1,87 @@
+name: CI Applications
+run-name: CI by @${{ github.actor }}
+
+on:
+  push:
+    branches: [main, develop, ci]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [olympic-games]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -f "${{ matrix.project }}/angular.json" ]; then
+            echo "type=angular" >> "$GITHUB_OUTPUT"
+          elif ls ${{ matrix.project }}/build.gradle* >/dev/null 2>&1; then
+            echo "type=spring-gradle" >> "$GITHUB_OUTPUT"
+          else
+            echo "Type de projet non reconnu dans ${{ matrix.project }}" >&2
+            exit 1
+          fi
+
+      - name: Setup Node
+        if: steps.detect.outputs.type == 'angular'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ${{ matrix.project }}/package-lock.json
+
+      - name: Install dependencies (npm)
+        if: steps.detect.outputs.type == 'angular'
+        run: npm ci
+        working-directory: ${{ matrix.project }}
+
+      - name: Setup Java
+        if: steps.detect.outputs.type == 'spring-gradle'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Make gradlew executable
+        if: steps.detect.outputs.type == 'spring-gradle'
+        run: chmod +x gradlew
+        working-directory: ${{ matrix.project }}
+
+      - name: Run tests
+        run: python run-tests.py --path ${{ matrix.project }}
+
+      - name: Publish test report
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          check_name: Test results (${{ matrix.project }})
+          files: |
+            ${{ matrix.project }}/test-results/**/*.xml
+            ${{ matrix.project }}/build/test-results/test/*.xml
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.project }}
+          path: |
+            ${{ matrix.project }}/test-results
+            ${{ matrix.project }}/build/test-results/test
+          if-no-files-found: ignore
