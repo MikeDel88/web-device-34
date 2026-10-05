@@ -1,6 +1,6 @@
 # Projet 6
 
-Monorepo contenant le front et le back de l'application.
+Monorepo contenant les applications olympic games et workshop-organizer.
 
 ```
 .
