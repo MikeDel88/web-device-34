@@ -29,3 +29,12 @@ docker compose up --build angular-prod
 - Workshop Organizer : <http://localhost:8080>
 
 Chaque dossier garde son propre `Dockerfile`, ses dépendances et ses manifests `k8s/`.
+
+
+# Examples de lancement pour le script
+```bash
+python run-tests.py --path olympic-games 
+```
+```bash
+python run-tests.py --path workshop-organizer
+```
