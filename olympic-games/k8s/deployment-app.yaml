@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: olympic-games-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: olympic-games-app
+  template:
+    metadata:
+      labels:
+        app: olympic-games-app
+    spec:
+      containers:
+      - name: olympic-games-app
+        # TODO: add the image of the application from the gitlab registry
+        ports:
+        - containerPort: 80
+      # TODO: define imagePullSecrets to use a docker-registry secret and authorize Kubenetes 

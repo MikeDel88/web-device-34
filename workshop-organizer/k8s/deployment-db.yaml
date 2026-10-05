@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-organizer-db-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workshop-organizer-db
+  template:
+    metadata:
+      labels:
+        app: workshop-organizer-db
+    spec:
+      containers:
+      - name: workshop-organizer-db
+      # TODO: add postgres image
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: workshop-organizer-db-secret
+              key: username
+       # TODO: add the postgres password variable
+        - name: POSTGRES_DB
+          value: workshop-organizer-database
+        ports:
+        - containerPort: 5432

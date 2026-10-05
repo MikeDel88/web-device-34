@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workshop-organizer-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: workshop-organizer-app
+  template:
+    metadata:
+      labels:
+        app: workshop-organizer-app
+    spec:
+      containers:
+      - name: workshop-organizer-app
+        # TODO: add the image of the application from the gitlab registry
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          # TODO: check the datasource URL
+          value: jdbc:postgresql://workshop-organizer-db:5432/workshop-organizer-database
+        - name: SPRING_DATASOURCE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: workshop-organizer-db-secret
+              key: username
+        # TODO: add the spring database password environment variable 
+      # TODO: define imagePullSecrets to use a docker-registry secret and authorize Kubenetes 
+      # to pull images from private gitlab registry.
+      # I found this article to help you : https://medium.com/@stasko.lukasz/how-to-pull-docker-images-from-gitlab-container-registry-in-kubernetes-cluster-aae52787074a

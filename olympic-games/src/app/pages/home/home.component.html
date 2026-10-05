@@ -1,0 +1,21 @@
+<h2>Olympic games app</h2>
+<hr />
+
+<p>{{ olympics().length }} data loaded</p>
+
+<div>
+  @for (olympic of olympics(); track $index) {
+  <h3>{{ olympic.country }}</h3>
+
+  <div>
+    @for (participation of olympic.participations; track $index) {
+    <h4>JO de {{ participation.city }} - {{ participation.year }}</h4>
+
+    <span
+      >{{ participation.athleteCount }} participants ont remporté
+      {{ participation.medalsCount }} médailles</span
+    >
+    }
+  </div>
+  }
+</div>

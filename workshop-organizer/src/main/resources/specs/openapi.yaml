@@ -1,0 +1,188 @@
+openapi: "3.0.3"
+info:
+  version: 1.0.0
+  title: Workshop OpenApi
+servers:
+  - url: http://localhost:8080/api/
+  - url: http://localhost/api/
+paths:
+  /notions:
+    get:
+      summary: List all notions
+      operationId: listNotions
+      tags:
+        - Notions
+      responses:
+        200:
+          description: A paged array of notions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notion"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a notion
+      operationId: createNotion
+      tags:
+        - Notions
+      requestBody:
+        description: Notion to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewNotion'
+      responses:
+        '201':
+          description: Created notion
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notion"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workshops:
+    get:
+      summary: List all workshops
+      operationId: listWorkshops
+      tags:
+        - Workshops
+      parameters:
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: A paged array of workshops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Workshop"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a workshop
+      operationId: createWorkshops
+      tags:
+        - Workshops
+      requestBody:
+        description: Workshop to add to the store
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewWorkshop'
+      responses:
+        '201':
+          description: Created workshop
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workshop"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /workshops/{workshopId}:
+    get:
+      summary: Info for a specific workshop
+      operationId: showWorkshopById
+      tags:
+        - Workshops
+      parameters:
+        - name: workshopId
+          in: path
+          required: true
+          description: The id of the workshop to retrieve
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Expected response to a valid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Workshop"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Workshop:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        notions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notion"
+    NewWorkshop:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        notions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notion"
+    Notion:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    NewNotion:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+

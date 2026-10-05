@@ -1,0 +1,97 @@
+plugins {
+	id 'org.openapi.generator' version '7.4.0'
+	id 'org.springframework.boot' version '3.2.4'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'java'
+	id 'maven-publish'
+	id 'war'
+}
+
+group = 'fr.oc.devops'
+version = '0.2.4'
+
+repositories {
+	mavenCentral()
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs 'src/main/java'
+			srcDirs 'src/main/java-generated'
+		}
+	}
+}
+
+dependencies {
+
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+	implementation 'io.swagger.core.v3:swagger-annotations:2.2.21'
+
+	implementation 'org.modelmapper:modelmapper:3.1.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	runtimeOnly 'org.postgresql:postgresql:42.7.3'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+processResources {
+	from("$rootDir/src/main/resources/specs/openapi.yaml") {
+		into("static")
+	}
+}
+
+openApiGenerate {
+	generatorName = "spring"
+	inputSpec = "$rootDir/src/main/resources/specs/openapi.yaml".toString()
+	apiPackage = "fr.oc.devops.backend"
+	modelPackage = "fr.oc.devops.backend.models"
+	configOptions = [
+			dateLibrary: "java8",
+			interfaceOnly: "true",
+			skipDefaultInterface: "true",
+			useSpringBoot3: "true",
+			library: 'spring-boot',
+			openApiNullable: 'true',
+			sourceFolder: "../../../src/main/java-generated".toString()
+	]
+}
+
+compileJava.dependsOn tasks.openApiGenerate
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+}
+
+war {
+    enabled = false
+}
+
+publishing {
+    publications {
+		MavenPublication(MavenPublication) {
+			artifact bootWar
+		}
+    }
+    repositories {
+		maven {
+			url "https://gitlab.com/api/v4/projects/$System.env.GITLAB_PROJECT_ID/packages/maven"
+			name "GitLab"
+			credentials(HttpHeaderCredentials) {
+				name = System.getenv("GITLAB_TOKEN_NAME")
+				value = System.getenv("GITLAB_TOKEN")
+			}
+			authentication {
+				header(HttpHeaderAuthentication)
+			}
+		}
+    }
+}

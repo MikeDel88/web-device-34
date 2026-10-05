@@ -1,0 +1,48 @@
+services:
+  olympic-games:
+    build:
+      context: ./olympic-games
+      dockerfile: Dockerfile
+    image: olympic-front
+    ports:
+      - "4300:8080"
+    restart: unless-stopped
+
+  workshop-organizer:
+    build:
+      context: ./workshop-organizer
+    image: workshop-organizer:0.2.4
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/${WO_DB_NAME}"
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      workshop-organizer-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  workshop-organizer-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${WO_DB_USER}
+      POSTGRES_PASSWORD: ${WO_DB_PASSWORD}
+      POSTGRES_DB: ${WO_DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${WO_DB_USER} -d ${WO_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - workshop-organizer-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  workshop-organizer-data:

@@ -1,0 +1,15 @@
+# Documents de cours (non versionnés)
+*.pdf
+
+# Secrets locaux
+.env
+!.env.example
+
+# IDE / OS
+.idea
+.vscode
+.DS_Store
+
+# Artefacts locaux
+.npm/
+*.tgz
