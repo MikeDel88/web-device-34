@@ -24,7 +24,8 @@ cd olympic-games
 docker compose up --build angular-prod
 ```
 
-- Front : <http://localhost:4300>
-- Back : <http://localhost:8080>
+- Olympic Games Prod : <http://localhost:4300>
+- Olympic Games Dev : <http://localhost:4200>
+- Workshop Organizer : <http://localhost:8080>
 
 Chaque dossier garde son propre `Dockerfile`, ses dépendances et ses manifests `k8s/`.
