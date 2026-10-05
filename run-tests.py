@@ -4,8 +4,6 @@ import sys
 import subprocess
 import shutil
 
-# Examples: python run-tests.py --path olympic-games or python run-tests.py --path worshop-organizer
-
 def _exists(*names):
   return lambda p: any((p / n).exists() for n in names)
 
