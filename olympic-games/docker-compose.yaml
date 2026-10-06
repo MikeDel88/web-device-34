@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: docker-angular-sample
+    image: ghcr.io/mikedel88/olympic-games:latest
     ports:
       - "4300:80"
 
