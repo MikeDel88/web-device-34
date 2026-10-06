@@ -131,6 +131,9 @@ jobs:
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: write
       issues: write
@@ -140,6 +143,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # tête actuelle de main (et non le SHA du run) : l'autre release a pu pousser avant
+          ref: ${{ github.ref_name }}
 
       - uses: actions/setup-node@v4
         with:
