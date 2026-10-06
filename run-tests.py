@@ -66,7 +66,7 @@ def main():
   path = Path(args.path).resolve()
   type = found_type(path)
   project = PROJECT_TYPES[type]
-  clean_directory(project["report_path"])
+  clean_directory(path / project["report_path"])
   missing = check_dependencies(path, type, project)
   if missing:
     sys.exit("\n".join(missing))

@@ -40,3 +40,6 @@ out/
 .openapi-generator/
 java-generated/
 .env
+
+### Node (semantic-release) ###
+node_modules/

@@ -1,0 +1,174 @@
+name: CI Project
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: Dossier du projet à tester
+        required: true
+        type: string
+      type:
+        description: Type du projet à tester
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+  JAVA_VERSION: "21"
+  JAVA_DISTRIBUTION: temurin
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/${{ inputs.project }}
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Setup Node
+        if: steps.detect.outputs.type == 'angular'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.project }}/package-lock.json
+
+      - name: Install dependencies (npm)
+        if: inputs.type == 'angular'
+        run: npm ci
+        working-directory: ${{ inputs.project }}
+
+      - name: Setup Java
+        if: inputs.type == 'spring-gradle'
+        uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Make gradlew executable
+        if: inputs.type == 'spring-gradle'
+        run: chmod +x gradlew
+        working-directory: ${{ inputs.project }}
+
+      - name: Run tests
+        run: python run-tests.py --path ${{ inputs.project }}
+
+      - name: Publish test report
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          check_name: Test results (${{ inputs.project }})
+          files: |
+            ${{ inputs.project }}/test-results/**/*.xml
+            ${{ inputs.project }}/build/test-results/test/*.xml
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ inputs.project }}
+          path: |
+            ${{ inputs.project }}/test-results
+            ${{ inputs.project }}/build/test-results/test
+          if-no-files-found: ignore
+
+  build:
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata (tags SHA + branche)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long,prefix=
+            type=ref,event=branch
+
+      - name: Build and push
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.project }}
+          push: ${{ github.event_name == 'push' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        if: github.event_name == 'push'
+        uses: actions/attest@v4
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install release tooling
+        run: npm ci
+        working-directory: ${{ inputs.project }}
+
+      - name: Semantic release
+        id: release
+        run: npx semantic-release
+        working-directory: ${{ inputs.project }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to GitHub Container Registry
+        if: steps.release.outputs.version != ''
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Retag image with release version
+        if: steps.release.outputs.version != ''
+        run: |
+          IMAGE=$(echo "${REGISTRY}/${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')
+          docker buildx imagetools create \
+            -t "${IMAGE}:${{ steps.release.outputs.version }}" \
+            -t "${IMAGE}:latest" \
+            "${IMAGE}:${{ github.sha }}"

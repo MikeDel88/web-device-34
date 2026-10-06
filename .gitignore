@@ -13,3 +13,5 @@
 # Artefacts locaux
 .npm/
 *.tgz
+olympic-games/test-results/
+workshop-organizer/build/

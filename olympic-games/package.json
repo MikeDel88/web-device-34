@@ -27,6 +27,9 @@
     "@angular/build": "^20.3.7",
     "@angular/cli": "~20.3.7",
     "@angular/compiler-cli": "^20.3.7",
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/exec": "^7.1.0",
+    "@semantic-release/git": "^11.0.1",
     "@types/jasmine": "~4.0.0",
     "jasmine-core": "~4.2.0",
     "karma": "~6.4.0",
@@ -35,6 +38,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "karma-junit-reporter": "^2.0.1",
+    "semantic-release": "^25.0.9",
     "typescript": "~5.8.3"
   },
   "files": [

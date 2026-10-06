@@ -1,0 +1,34 @@
+name: CI workshop-organizer
+run-name: CI workshop-organizer by @${{ github.actor }}
+
+on:
+  push:
+    branches: [main, develop, ci]
+    paths:
+      - "workshop-organizer/**"
+      - "run-tests.py"
+      - ".github/workflows/ci-workshop-organizer.yml"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "workshop-organizer/**"
+      - "run-tests.py"
+      - ".github/workflows/ci-workshop-organizer.yml"
+      - ".github/workflows/ci.yml"
+
+permissions:
+  contents: write
+  issues: write
+  checks: write
+  pull-requests: write
+  packages: write
+  id-token: write
+  attestations: write
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    with:
+      project: workshop-organizer
+      type: spring-gradle
