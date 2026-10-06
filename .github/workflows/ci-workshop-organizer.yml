@@ -18,7 +18,8 @@ on:
       - ".github/workflows/ci.yml"
 
 permissions:
-  contents: read
+  contents: write
+  issues: write
   checks: write
   pull-requests: write
   packages: write
