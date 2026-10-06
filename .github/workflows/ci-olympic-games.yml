@@ -21,9 +21,13 @@ permissions:
   contents: read
   checks: write
   pull-requests: write
+  packages: write
+  id-token: write
+  attestations: write
 
 jobs:
-  test:
+  ci:
     uses: ./.github/workflows/ci.yml
     with:
       project: olympic-games
+      type: angular
