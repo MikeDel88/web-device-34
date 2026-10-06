@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* && rm -rf /usr/local/tomcat/webapps/*
 
 # Déployer le WAR en ROOT => application servie sur /
-ARG VERSION=0.2.4
+ARG VERSION=1.0.0
 ARG WAR_FILE=/app/build/libs/workshop-organizer-${VERSION}.war
 COPY --from=builder ${WAR_FILE} /usr/local/tomcat/webapps/ROOT.war
 
