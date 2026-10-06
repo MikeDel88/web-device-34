@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/MikeDel88/web-device-34/compare/olympic-games-v1.0.0...olympic-games-v1.0.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* **ci:** add concurrency in job release for both project, one by one and not in the same time. ([955d676](https://github.com/MikeDel88/web-device-34/commit/955d676d7a4d6fd7129715f980c35357d889aab6))
+
 # 1.0.0 (2026-10-06)
 
 
